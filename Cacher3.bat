@@ -13,121 +13,110 @@ echo ": : \ \  __<   \ \  __\   \ \ \-./\ \  \ \ \/\ \  \ \ \'/   \ \  __\   \ \
 echo ": :  \ \_\ \_\  \ \_____\  \ \_\ \ \_\  \ \_____\  \ \__|    \ \_____\  \ \_\ \_\ : :";
 echo ": :   \/_/ /_/   \/_____/   \/_/  \/_/   \/_____/   \/_/      \/_____/   \/_/ /_/ : :";
 echo "'·:...............................................................................:·'";
+Echo ""
+Echo ""
 @echo off
-echo '
-echo '
-echo '
-goto 2
-:1
-cls
-goto 2
-:2
+goto menu
+:menu
 echo Select the game cache you want to clean:
-echo 		1. GTA5 and FiveM
-echo 		2. RDR2 and RedM
-echo 		Press CTRL+C at any time to quit.
-echo '
-set /p dirChoice=Type 1 for GTA/FIVEM or type 2 for RDR2/REDM: 
+echo 1. GTA5 FiveM
+echo 2. Red Dead 2 RedM
+echo Press CTRL+C and confirm with Y at any time to quit.
+echo ""
+set /p dirChoice=Please type 1 or 2 and press Enter to select: 
+echo ""
+echo ""
+echo ""
 cls
 if "%dirChoice%"=="1" (
     set dirPath=%LocalAppData%\FiveM\FiveM.app\Data
 	set dirVar="FiveM"
-    echo ****You chose to clean the FIVEM directory****
+    echo ****You chose FiveM directory****
 ) else if "%dirChoice%"=="2" (
     set dirPath=%LocalAppData%\RedM\RedM.app\Data
 	set dirVar="RedM"
-    echo ****You chose to clean the REDM directory****
+    echo ****You chose RedM directory****
 ) else (
-    echo You can only use option 1 or 2 - Returning to main menu
-    pause
+    echo Invalid choice. Returning to main menu
+    timeout /t 5 /nobreak
 	cls
-    goto 1
+    goto menu
 )
-
 
 cd %dirPath%
 echo ""
 echo ""
-echo This will delete caches for %dirVar% 
-echo These are the current files in your %dirVar% data directory
+echo This remove your caches for this game directory: %dirVar% 
+echo Normally you will see 3 to 5 different folders. 
+echo If you have ran this already there will be fewer folders listed
+echo Folder : %dirPath%
 echo ----------------------------------------
-echo ""
 dir /b
-echo ""
 echo ----------------------------------------
-
-echo Options
-echo 	1. Delete all cache related folders (safest option - will preserve settings/keybinds)
-echo 	2. Delete everything possible - Requires redownload of scripts when reconnecting to the server
-echo 	3. Delete ONLY the nui-storage - For UI issues - May require UI reconfig in game
-echo '
-echo If you're not sure which to choose Option 1 is the safest
-echo Press 'CTRL+C' at ANY time to cancel and quit
-echo ...
-set /p choice=	Please type in 1, 2,or 3 to select your choice and press Enter: 
-echo ...
+Echo .
+Echo.
+goto menu2
+:menu2
+cls
+echo %dirVar% is your current selected game
+echo Please choose an option:
+echo 1. Delete only cache folders
+echo 2. Delete nui-storage - Useful if you have problems with your UI in game
+set /p choice=Enter your choice 1 or 2: 
 
 if "%choice%"=="1" (
-    echo You chose Option 1 
+    echo You chose Option 1
+    echo This will only delete your cache folders
     pause
-	for %%D in (cache server-cache server-cache-priv) do (
-    IF EXIST %%D (
-        rmdir %%D /S /Q
-    ) ELSE (
-        echo '%%D' Does not exist! Exiting
-		timeout /t 5 /nobreak
-		echo Restarting script
-		goto 1
-		
-    )
-)
-    REM rmdir cache /S /Q
-    REM rmdir server-cache /S /Q
-    REM rmdir server-cache-priv /S /Q
+	if not exist *cache* ( 
+		pause
+		echo paused
+		goto no_cache
+	) 	else ( goto 1logic
+	:1logic
+			rmdir cache /S /Q
+			rmdir server-cache /S /Q
+			rmdir server-cache-priv /S /Q
+			goto post
+		)
 ) else if "%choice%"=="2" (
     echo You chose Option 2
-    echo This will remove all caches and require a download when you reconnect to the server
-    echo If you get errors, it means the folders are already gone
-	echo Press any key to continue
-    pause
-	for %%D in (cache server-cache server-cache-priv nui-storage) do (
-    IF EXIST %%D (
-        rmdir %%D /S /Q
-        echo Successfully removed '%%D'
-    ) ELSE (
-        echo '%%D' does not exist! Exiting
-		timeout /t 5 /nobreak
-		echo Restarting script
-		goto 1
-    )
-)
-    REM rmdir cache /S /Q
-    REM rmdir server-cache /S /Q
-    REM rmdir server-cache-priv /S /Q
-    REM rmdir nui-storage /S /Q
-) else if "%choice%"=="3" (
-    echo You chose Option 3
     echo This will remove only the nui-storage
-	IF EXIST nui-storage (
-    rmdir nui-storage /S /Q
-    echo Successfully removed 'nui-storage'
-) ELSE (
-    echo 'nui-storage' does not exist! Exiting
-		timeout /t 5 /nobreak
-		echo Restarting script
-	goto 1
+	echo Reminder - You may need to reconfigure your in game UI settings
+	pause
+	if not exist *nui* (
+		goto no_cache
+	)	else (
+			goto 2logic
+			:2logic    
+			rmdir nui-storage /S /Q
+			goto post
+		)
+) else (
+    echo Invalid choice. Please enter 1 or 2
+    pause
+    goto menu2
 )
 
-    REM rmdir nui-storage /S /Q
-) else (
-    echo Invalid choice. Please enter 1, 2, or 3.
-)
+:post
 echo ...
-Echo 	Files deleted!
-echo 	This is your directory after removal of all cache files relevant to your game
-echo 	This step is to verify visually that the folder from step 1 is no longer there
+echo This is your directory after removal of all cache files relevant to your game
 echo ----------------------------------------
+echo ""
 dir /b
+echo ""
 echo ----------------------------------------
 echo Operation complete...Now Exiting
 pause
+exit
+
+
+:no_cache
+cls
+echo This selection does not exist.
+echo No files have been removed.
+echo Returning to main menu...
+timeout /t 9 /nobreak
+cls
+goto menu
+
